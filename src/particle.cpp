@@ -142,6 +142,23 @@ void Particle::transform_frame(ParticleFrame target)
   }
   this->frame() = target;
   resynchronize4d();
+
+  // Propagate the boosted direction to every lower coordinate level, as
+  // event_collide() does after a scattering. move_distance() advances each
+  // level along its own direction copy, so a level left with the comoving
+  // direction while level 0 carries the lab direction drifts off the lab
+  // trajectory by V*t between two re-synchronisations of its position; in a
+  // lattice this puts the particle a few micrometres short of the tile it
+  // has just been assigned to and it is lost with a negative tile distance.
+  for (int j = 0; j < n_coord() - 1; ++j) {
+    if (coord(j + 1).rotated()) {
+      const auto& m {model::cells[coord(j).cell()]->rotation_};
+      const auto& u {coord(j).u()};
+      coord(j + 1).u() = u.rotate(m);
+    } else {
+      coord(j + 1).u() = coord(j).u();
+    }
+  }
 }
 
 double Particle::dscale()
