@@ -96,8 +96,12 @@ void Particle::transform_frame(ParticleFrame target)
   if (target == frame()){
     return;
   }
-  // if material velocity is zero
+  // If the material is at rest the lab and comoving velocities coincide, but
+  // the frame label must still follow the requested frame: otherwise a particle
+  // born (or scattered) in a static cell keeps a stale "comoving" label and is
+  // boosted by +v_m on its first flight after entering a moving cell.
   if (v_m().norm() == 0){
+    this->frame() = target;
     return;
   }
 
