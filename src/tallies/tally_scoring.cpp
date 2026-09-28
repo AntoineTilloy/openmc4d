@@ -588,6 +588,10 @@ void score_general_ce_nonanalog(Particle& p, int i_tally, int start_index,
     sca = 1;
   }
 
+  // Score in the comoving frame, but restore whatever frame the caller was
+  // in: track-length scoring runs mid-flight (lab), collision/analog scoring
+  // runs mid-collision (comoving, required by the next XS lookup)
+  ParticleFrame entry_frame = p.frame();
   p.transform_frame(ParticleFrame::comoving);
 
   // Get the pre-collision energy of the particle.
@@ -1105,7 +1109,7 @@ void score_general_ce_nonanalog(Particle& p, int i_tally, int start_index,
     tally.results_(filter_index, score_index, TallyResult::VALUE) +=
       score * filter_weight;
   }
-  p.transform_frame(ParticleFrame::lab);
+  p.transform_frame(entry_frame);
 }
 
 //! Update tally results for continuous-energy tallies with an analog estimator.
@@ -1126,7 +1130,10 @@ void score_general_ce_analog(Particle& p, int i_tally, int start_index,
   } else {
     sca = 1;
   }
-  
+
+  // Score in the comoving frame, but restore the caller's frame on exit
+  // (analog scoring runs mid-collision, where the particle must stay comoving)
+  ParticleFrame entry_frame = p.frame();
   p.transform_frame(ParticleFrame::comoving);
 
   // Get the pre-collision energy of the particle.
@@ -1623,7 +1630,7 @@ void score_general_ce_analog(Particle& p, int i_tally, int start_index,
       score * filter_weight;
   }
 
-  p.transform_frame(ParticleFrame::lab);
+  p.transform_frame(entry_frame);
 
 }
 
