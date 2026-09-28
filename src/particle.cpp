@@ -350,12 +350,14 @@ void Particle::event_advance()
     collision_distance() = -std::log(prn(current_seed())) / macro_xs().total;
   }
 
-  double speed = this->speed();
-
   // Transform particle to lab frame
   if (settings::run_CE) {
     transform_frame(ParticleFrame::lab);
   }
+
+  // Lab-frame speed; must be evaluated after the frame transform so that
+  // time and the time-cutoff distance are consistent with lab-frame flight
+  double speed = this->speed();
 
   // Transform comoving to lab collision_distance
   collision_distance() *= dscale();
@@ -378,6 +380,10 @@ void Particle::event_advance()
   this->time() += dt;
   this->lifetime() += dt;
 
+  // Check for the time cutoff while distance and distance_cutoff are still
+  // both lab-frame lengths (the equality cannot hold after the rescale below)
+  bool hit_time_cutoff = (distance == distance_cutoff);
+
   // Transform to comoving for tallying
   distance /= dscale();
 
@@ -398,7 +404,7 @@ void Particle::event_advance()
   }
 
   // Set particle weight to zero if it hit the time boundary
-  if (distance == distance_cutoff) {
+  if (hit_time_cutoff) {
     wgt() = 0.0;
   }
 }

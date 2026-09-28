@@ -925,9 +925,11 @@ double SurfaceQuadric::distance(
   const double a =
     A_ * u * u + B_ * v * v + C_ * w * w + D_ * u * v + E_ * v * w + F_ * u * w + 
     L_ * s * s + M_ * u * s + N_ * v * s + O_ * w * s;
-  const double k = A_ * u * x + B_ * v * y + C_ * w * z +
+  const double k = A_ * u * x + B_ * v * y + C_ * w * z + L_ * s * t +
                    0.5 * (D_ * (u * y + v * x) + E_ * (v * z + w * y) +
-                           F_ * (w * x + u * z) + G_ * u + H_ * v + J_ * w);
+                           F_ * (w * x + u * z) + M_ * (u * t + s * x) +
+                           N_ * (v * t + s * y) + O_ * (w * t + s * z) +
+                           G_ * u + H_ * v + J_ * w + P_ * s);
   const double c = A_ * x * x + B_ * y * y + C_ * z * z + D_ * x * y +
                    E_ * y * z + F_ * x * z + G_ * x + H_ * y + J_ * z + K_ +
                    L_ * t * t + M_ * x * t + N_ * y * t + O_ * z * t + P_ * t;
